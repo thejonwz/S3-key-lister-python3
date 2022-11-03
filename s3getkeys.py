@@ -28,29 +28,29 @@ s3 = boto3.client('s3', config=Config(signature_version=UNSIGNED))
 
 #prints help info
 def usage():
-	print "\n\x1b[0;33;49mThis python 2.7 script will fetch all keys from any specified public AWS s3 bucket and save it as a .csv file\x1b[0;37;49m \n"
-	print "Usage:"
-	print "  python2 s3getkeys.py -t <bucket> [--key=<key>] [-r] [-v] [--acl] [-o=<file>]"
-	print "  python2 s3getkeys.py -t <bucket> [--key] [--estimate]"
-	print "  python2 s3getkeys.py -t <bucket> [-h|--help]\n"
-	print "Options:"
-	print "  -t, --bucket <bucket> bucket to fetch keys from"
-	print "  --key <key>           key to start from"
-	print "  -r                    recursivly fetch all keys"
-	print "  -v                    verbose, print keys"
-	print "  --acl                 check if each key is public,"
-	print "                        can take long time in large buckets"
-	print "  -o, --output <file>   name of output file, do not include .csv[default:bucket]"
-	#print "  -a                    append to existing file"
-	print "  --estimate            estimate how long to run, filesize with [-r][--acl]"
-	print "  -h,--help             show this help info"
+	print("\n\x1b[0;33;49mThis python 2.7 script will fetch all keys from any specified public AWS s3 bucket and save it as a .csv file\x1b[0;37;49m \n")
+	print("Usage:")
+	print("  python2 s3getkeys.py -t <bucket> [--key=<key>] [-r] [-v] [--acl] [-o=<file>]")
+	print("  python2 s3getkeys.py -t <bucket> [--key] [--estimate]")
+	print("  python2 s3getkeys.py -t <bucket> [-h|--help]\n")
+	print("Options:")
+	print("  -t, --bucket <bucket> bucket to fetch keys from")
+	print("  --key <key>           key to start from")
+	print("  -r                    recursivly fetch all keys")
+	print("  -v                    verbose, print keys")
+	print("  --acl                 check if each key is public,")
+	print("                        can take long time in large buckets")
+	print("  -o, --output <file>   name of output file, do not include .csv[default:bucket]")
+	#print("  -a                    append to existing file")
+	print("  --estimate            estimate how long to run, filesize with [-r][--acl]")
+	print("  -h,--help             show this help info")
 
 #get options from command line
 try:
 	opts, args = getopt.getopt(sys.argv[1:], "t:rvo:h", ["bucket=","key=","acl","output=","estimate","help"])
 except getopt.GetoptError as err:
 	# print help information and exit
-	print str(err)
+	print(str(err))
 	usage()
 	sys.exit(2)
 #loop though supplied options from the command line and set variables/flags to be used in script
@@ -108,7 +108,7 @@ def getEstimate(_StartAfter=None,_ContinuationToken=None):
 				break                             #break out of loop
 		global averageEstTime
 		averageEstTime = sum(estimateTimes) / len(estimateTimes)           #workout average lookup time
-		print 'Average key info request time: ' + str(averageEstTime)+'s'  #print info
+		print('Average key info request time: ' + str(averageEstTime)+'s')  #print info
 		
 	numKeys[0] += objects['KeyCount']           #log how many keys we fetched
 	t0 = time.time()                            #current time
@@ -119,7 +119,7 @@ def getEstimate(_StartAfter=None,_ContinuationToken=None):
 		getEstimate(_ContinuationToken=objects['NextContinuationToken']) #recursivly continue until bucket no longer truncated
 	else:
 		estimateTime = "{0:.2f}".format(averageEstTime * numKeys[0]) #calculate estimate time to complete query
-		print '\r\n\x1b[1;36;49mDone\x1b[0;37;49m \x1b[1;32;49mTotal keys:\x1b[0;37;49m ' + str(numKeys[0]) + ', \x1b[1;32;49mestimated time:\x1b[0;37;49m ' + estimateTime + 's'
+		print('\r\n\x1b[1;36;49mDone\x1b[0;37;49m \x1b[1;32;49mTotal keys:\x1b[0;37;49m ' + str(numKeys[0]) + ', \x1b[1;32;49mestimated time:\x1b[0;37;49m ' + estimateTime + 's')
 		
 #check if a key inside a bucket is public
 def isObjPublic(_bucket,_key):
@@ -148,7 +148,7 @@ def getKeys(_bucket,_marker=None):
 	for key in objects['Contents']:
 			global numKeys, runTime
 			numKeys[0] +=1                        #update number of keys
-			keyStr = key['Key'].encode('utf-8')   #get key and make sure it is encoded to utf-8, otherwise throws errors with some lang characters
+			keyStr = key['Key']	                  #get key and make sure it is encoded to utf-8, otherwise throws errors with some lang characters  #hoping boto3 no longer throws errors
 			size = key['Size']                    #get file size in bytes
 			lastMod = str(key['LastModified'])    #get date of last modified
 			access = 'unknown'                    #wether object is public/private
@@ -178,7 +178,7 @@ def getKeys(_bucket,_marker=None):
 if bucket:
 	#if --estimate option used
 	if estimate:
-		print '\x1b[0;33;49mGetting estimated time, will print Done when finished\x1b[0;37;49m:'
+		print('\x1b[0;33;49mGetting estimated time, will print Done when finished\x1b[0;37;49m:')
 		#if a key to start from supplied
 		if key:
 			getEstimate(_StartAfter=key)  #get estimate with supplied StartAfter key
@@ -193,7 +193,7 @@ if bucket:
 			writer.writeheader()                                #write header file
 			#print info
 			cliInfo = '\x1b[0;33;49mFetching keys from: ' + str(bucket) + ', will print Done when finished\x1b[0;37;49m:'
-			print cliInfo
+			print(cliInfo)
 			#get keys
 			if key:                 #if key supplied with --key in command line
 				getKeys(bucket, key)  #get keys ,starting after supplied --key  and write to .csv file
